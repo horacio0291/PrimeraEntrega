@@ -4,18 +4,25 @@ const cartsRouter = Router();
 const CartManager = require("../../CartManager");
 const manager = new CartManager("./carts.json");
 
-let = newCart = {id:0, products:[]}
+let = newCart = { id: 0, products: [] };
 
 cartsRouter.post("/add", async (req, res) => {
-    await manager.addCart(newCart);
-    res.send("Added Cart successfully");
-  });
+  await manager.addCart(newCart);
+  res.send("Added Cart successfully");
+  res.send();
+});
 
-
-
+cartsRouter.get("/:cid", async (req, res) => {
+  let id = req.params.cid;
+  let cartId = await manager.getCartById(id);
+  if (!cartId) {
+    res.send("404 - ID not found");
+  } else {
+    res.send(cartId.products);
+  }
+});
 
 module.exports = cartsRouter;
-
 
 // let newId = 0;
 // let carts = [];
