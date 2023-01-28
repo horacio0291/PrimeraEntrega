@@ -28,15 +28,29 @@ cartsRouter.post("/:cid/product/:pid", async (req, res) => {
   let cid = req.params.cid;
   let pid = req.params.pid;
 
-  let cartId = await manager.getCartById(cid);
-  let totalProducts = JSON.parse(await products.getProducts());
+  fs.readFile("./carts.json", "utf8", async (err, data) => {
+    carts = JSON.parse(data);
 
-  let productId = totalProducts.find((prod) => prod.id == pid);
+    let totalProducts = JSON.parse(await products.getProducts());
+    let productId = totalProducts.find((prod) => prod.id == pid);
 
-  cartId.products.push({ id: productId.id, quantity: 10 });
-  await manager.saveProduct()
+    let newProduct = { id: productId.id, quantity: 1 };
 
-  res.send(cartId);
+    let cartsToArray = Array.from(carts[0].products);
+
+    let isInCart = cartsToArray.find((product) => product.id == pid);
+    if (isInCart) {
+      carts[cid - 1].products[pid].quantity += 1;
+    } else {
+      carts[cid - 1].products.push(newProduct);
+    }
+
+    let json = JSON.stringify(carts);
+
+    await fs.promises.writeFile("./carts.json", json);
+  });
+
+  res.send("Added");
 });
 
 module.exports = cartsRouter;
